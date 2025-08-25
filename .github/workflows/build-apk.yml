@@ -1,10 +1,10 @@
-name: Build Flet APK
+name: Build Flutter APK
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
 
 jobs:
   build:
@@ -12,26 +12,30 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
+        uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: "3.19.0"   # تقدر تغيرها لآخر إصدار ثابت
 
-      - name: Install Flet
-        run: pip install flet
+      - name: Install dependencies
+        run: flutter pub get
 
-      - name: Build APK with Flet
-        run: flet build apk main.py
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Build AAB
+        run: flutter build appbundle --release
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: flet-apk
-          path: build/flet/*.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: flet-aab
+          path: build/app/outputs/bundle/release/app-release.aab          path: build/flet/*.apk
